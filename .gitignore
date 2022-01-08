@@ -1,0 +1,4 @@
+.slurm_logs
+job_train.sh
+job_test.sh
+
