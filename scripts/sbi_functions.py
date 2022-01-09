@@ -6,7 +6,7 @@ import sbi.inference.snpe.snpe_c as SNPE
 from sbi.analysis import pairplot
 from scipy.signal import savgol_filter
 
-from autoencoder_synth_blue import *
+from scripts.train_ae import *
 ################################################################################
 # Helper functions for SBI
 ################################################################################

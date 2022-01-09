@@ -4,9 +4,9 @@ import matplotlib.pyplot as plt
 from scipy.signal import savgol_filter
 import time
 
-from train_DNN_search_v2 import *
-from autoencoder_synth_blue import *
-from z_sbi_functions import *
+from scripts.train_DNN import *
+from scripts.train_ae import *
+from scripts.sbi_functions import *
 
 import warnings
 import logging
@@ -104,7 +104,7 @@ def plot_random_posterior(mean_path,std_path):
 
     plot_pdf(samples,limits,n_bins)
 
-def predict(mean_path,std_path,n_spectra,limits,results_name):
+def predict(datafile_test,encoder,posterior,mean_path,std_path,n_spectra,limits,results_directory,results_name):
     # Getting the predicted theta
     theta_pred = np.zeros((n_spectra,23))
     spectra,_ = load_data_obs(datafile_test)
@@ -133,8 +133,8 @@ def predict(mean_path,std_path,n_spectra,limits,results_name):
             valid[i] = 0
 
     # Saving the results
-    np.save('{}/sols_sbi/{}.npy'.format(results_directory,results_name), theta_pred)
-    np.save('{}/valid_sbi/{}.npy'.format(results_directory,results_name), valid)
+    np.save('{}/sols_sbi_{}.npy'.format(results_directory,results_name), theta_pred)
+    np.save('{}/valid_sbi_{}.npy'.format(results_directory,results_name), valid)
 
 def generate_predictions(datafile_synth,datafile_test,ae_path,posterior_path,mean_path,std_path,results_directory,results_name):
     logging.Logger.warning = warning
@@ -170,5 +170,5 @@ def generate_predictions(datafile_synth,datafile_test,ae_path,posterior_path,mea
     # Getting posterior for a random spectrum
     # plot_random_posterior()
     # Predicting parameters from mode of distributions
-    predict(mean_path,std_path,10,limits,results_directory,results_name)
-    # predict(mean_path,std_path,int(n_spectra),limits,results_name)
+    predict(datafile_test,encoder,posterior,mean_path,std_path,10,limits,results_directory,results_name)
+    # predict(datafile_test,encoder,posterior,mean_path,std_path,int(n_spectra),limits,results_directory,results_name)

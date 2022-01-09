@@ -1,4 +1,5 @@
 .slurm_logs
+.sbi-logs
 job_train.sh
 job_test.sh
 

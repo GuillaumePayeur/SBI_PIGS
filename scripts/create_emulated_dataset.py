@@ -1,6 +1,7 @@
 import numpy as np
 import h5py
 
+from scripts.train_DNN import *
 ################################################################################
 # functions to create a synthetic training dataset using the emulator starnet
 # emulator.
@@ -9,7 +10,11 @@ delta = np.array([0.1,0.1,0.1,0.1,0.1,0.1,0.1,0.1,0.1,0.1,0.1,0.1,0.1,0.1,0.1,0.
 parameters = ['Al', 'Ba', 'C', 'Ca', 'Co', 'Cr', 'Eu', 'Mg', 'Mn', 'N', 'Na', 'Ni', 'O', 'Si', 'Sr', 'Ti', 'Zn', 'logg', 'teff', 'm_h', 'vsini', 'vt', 'vrad']
 ################################################################################
 
-def gen_emulated_dataset(input_filename,output_filename,emulator_path):
+def gen_emulated_dataset(input_filename,output_filename,emulator_path,std_path):
+    batch_size = 1000
+    delta = np.array([0.1,0.1,0.1,0.1,0.1,0.1,0.1,0.1,0.1,0.1,0.1,0.1,0.1,0.1,0.1,0.1,0.1,0.2,200,0.3,0,0.1,0])
+    parameters = ['Al', 'Ba', 'C', 'Ca', 'Co', 'Cr', 'Eu', 'Mg', 'Mn', 'N', 'Na', 'Ni', 'O', 'Si', 'Sr', 'Ti', 'Zn', 'logg', 'teff', 'm_h', 'vsini', 'vt', 'vrad']
+
     # Loading synthetic grid to get range of parameters
     with h5py.File(input_filename) as grid:
         n_spectra = np.array(grid['Al']).shape[0]
@@ -24,7 +29,7 @@ def gen_emulated_dataset(input_filename,output_filename,emulator_path):
 
     # Generating the labels
     print('generating {} spectra'.format(n_spectra))
-    std = np.load('std.npy')
+    std = np.load(std_path)
     delta = delta/std
     labels = np.zeros((n_spectra,23))
     for i in range(n_spectra):
@@ -48,6 +53,3 @@ def gen_emulated_dataset(input_filename,output_filename,emulator_path):
         for i, parameter in enumerate(parameters):
             F.create_dataset(parameter,data=labels[:,i])
         F.create_dataset('spectra_asymnorm_noiseless',data=spectra)
-
-if __name__ == '__main__':
-    gen_emulated_dataset(input_filename,output_filename,emulator_path)

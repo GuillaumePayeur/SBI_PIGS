@@ -14,25 +14,22 @@ mean_path = '/home/payeur/scratch/PIGS/SBI_PIGS/data/mean.npy'
 std_path = '/home/payeur/scratch/PIGS/SBI_PIGS/data/std.npy'
 
 ## Models path
-ae_path = '/home/payeur/scratch/PIGS/SBI_PIGS/models/ae_emulated_synth_obs_500.pth'
-densityEstimator_path = '/home/payeur/scratch/PIGS/SBI_PIGS/posteriors/posterior_z_50_5_10_v3.pkl'
+ae_path = '/home/payeur/scratch/PIGS/SBI_PIGS/models/ae_emulated_synth_obs.pth'
+densityEstimator_path = '/home/payeur/scratch/PIGS/SBI_PIGS/models/posterior_test.pkl'
 
 # name of the results
 results_directory = '/home/payeur/scratch/PIGS/SBI_PIGS/results'
-results_name = 'v11'
+results_name = 'test'
 
 ################################################################################
-import scripts.train_DNN
-import scripts.create_emulated_dataset
-import scripts.augment_spectra
-import scripts.train_ae
-import scripts.sbi_functions
-import scripts.sbi_train
+from scripts.train_DNN import *
+from scripts.sbi_functions import *
+from scripts.sbi_test import *
 
 generate_predictions(datafile_synth,
                      datafile_obs,ae_path,
                      densityEstimator_path,
-                     mean_path
-                     std_path
+                     mean_path,
+                     std_path,
                      results_directory,
                      results_name)

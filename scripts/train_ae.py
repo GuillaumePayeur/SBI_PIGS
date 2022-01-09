@@ -104,21 +104,21 @@ def spectra_data_obs(filename):
         return spectra_blue, e_spectra_blue
 
 # Function to create training batches
-def get_batch_synth(i):
+def get_batch_synth(spectra_blue_synth,batch_size,i):
     # Preparing spectra batch
-    x_blue = torch.from_numpy(spectra_blue_synth[i*batch_size:(i+1)*batch_size]).to(GPU).float().view((-1,1,1791))
+    x_blue = torch.from_numpy(spectra_blue_synth[i*batch_size:(i+1)*batch_size]).to('cuda:0').float().view((-1,1,1791))
     return x_blue
 
 # Function to create training batches
-def get_batch_obs(i):
+def get_batch_obs(spectra_blue_obs,e_spectra_blue,batch_size,i):
     # Preparing spectra batch
-    x_blue = torch.from_numpy(spectra_blue_obs[i*batch_size:(i+1)*batch_size]).to(GPU).float().view((-1,1,1791))
-    e_blue = torch.from_numpy(e_spectra_blue[i*batch_size:(i+1)*batch_size]).to(GPU).float().view((-1,1,1791))
+    x_blue = torch.from_numpy(spectra_blue_obs[i*batch_size:(i+1)*batch_size]).to('cuda:0').float().view((-1,1,1791))
+    e_blue = torch.from_numpy(e_spectra_blue[i*batch_size:(i+1)*batch_size]).to('cuda:0').float().view((-1,1,1791))
 
     return x_blue,e_blue
 
 # Function to perform a training epoch
-def training_epoch(n_spectra_synth,n_spectra_obs):
+def training_epoch(ae,spectra_blue_synth,spectra_blue_obs,e_spectra_blue,n_spectra_synth,n_spectra_obs,batch_size,scheduler,optimizer):
     n_batches_synth = n_spectra_synth//batch_size
     n_batches_obs = n_spectra_obs//batch_size
     n_batches = n_batches_synth + n_batches_obs
@@ -133,7 +133,7 @@ def training_epoch(n_spectra_synth,n_spectra_obs):
     SSE = 0
     for batch_index in tqdm(batches_array_train):
         if batch_index < n_batches_synth:
-            x_blue = get_batch_synth(batch_index)
+            x_blue = get_batch_synth(spectra_blue_synth,batch_size,batch_index)
             # loss & backprop
             ae.zero_grad()
             y_blue = ae(x_blue)
@@ -142,7 +142,7 @@ def training_epoch(n_spectra_synth,n_spectra_obs):
             loss.backward()
             optimizer.step()
         else:
-            x_blue, e_blue = get_batch_obs(batch_index-n_batches_synth)
+            x_blue, e_blue = get_batch_obs(spectra_blue_obs,e_spectra_blue,batch_size,batch_index-n_batches_synth)
             # loss & backprop
             ae.zero_grad()
             y_blue = ae(x_blue)
@@ -162,13 +162,13 @@ def training_epoch(n_spectra_synth,n_spectra_obs):
         SSE_l2 = 0
         for batch_index in tqdm(batches_array_val):
             if batch_index < n_batches_synth:
-                x_blue = get_batch_synth(batch_index)
+                x_blue = get_batch_synth(spectra_blue_synth,batch_size,batch_index)
                 # loss & backprop
                 y_blue = ae(x_blue)
                 SSE_l1 += batch_size*l1(x_blue,y_blue)
                 SSE_l2 += batch_size*l2(x_blue,y_blue)
             else:
-                x_blue, e_blue = get_batch_obs(batch_index-n_batches_synth)
+                x_blue, e_blue = get_batch_obs(spectra_blue_obs,e_spectra_blue,batch_size,batch_index-n_batches_synth)
                 # loss & backprop
                 y_blue= ae(x_blue)
                 SSE_l1 += batch_size*weighted_l1(x_blue,y_blue,e_blue)
@@ -206,7 +206,7 @@ def train_auto_encoder(datafile_synth,datafile_obs,ae_path,config):
     for epoch in range(epochs):
         print('starting epoch {}'.format(epoch+1))
         # Training epoch
-        training_epoch(n_spectra_synth,n_spectra_obs)
+        training_epoch(ae,spectra_blue_synth,spectra_blue_obs,e_spectra_blue,n_spectra_synth,n_spectra_obs,batch_size,scheduler,optimizer)
         # # Saving model every 20 epochs
         # if epoch % 20 == 0:
         #   pass

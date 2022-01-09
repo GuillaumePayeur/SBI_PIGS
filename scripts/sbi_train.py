@@ -6,15 +6,15 @@ import sbi.inference.snle.snle_a as SNLE
 from sbi.analysis import pairplot
 import pickle
 
-from z_sbi_functions import *
-from train_DNN_search_v2 import *
-from autoencoder_synth_blue import *
+from scripts.sbi_functions import *
+from scripts.train_DNN import *
+from scripts.train_ae import *
 
 ################################################################################
 # SBI using SNPE_C
 ################################################################################
 
-def train_density_estimator(datafile_train,posterior_name,config):
+def train_density_estimator(datafile_train,ae_path,posterior_path,config):
     model,hidden_features,num_transforms,num_bins,max_epochs = tuple(config)
 
     # Loading the stellar labels from the training data
@@ -35,7 +35,7 @@ def train_density_estimator(datafile_train,posterior_name,config):
     prior = create_prior(torch.from_numpy(min),torch.from_numpy(max))
 
     # Loading the encoder NN
-    encoder = get_encoder(path)
+    encoder = get_encoder(ae_path)
 
     # Getting the simulations data
     theta = torch.from_numpy(theta[:]).float()
@@ -50,5 +50,5 @@ def train_density_estimator(datafile_train,posterior_name,config):
     posterior = get_posterior(density_estimator,prior,theta,z,max_epochs)
 
     # Saving the posterior
-    with open(posterior_name,'wb') as handle:
+    with open(posterior_path,'wb') as handle:
         pickle.dump(posterior, handle)

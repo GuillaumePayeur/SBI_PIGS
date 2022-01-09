@@ -23,7 +23,7 @@ max_noise_std = 0.04
 
 ## Training hyperparameters for the autoencoder
 batch_size_ae = 128
-epochs_ae = 500
+epochs_ae = 2 #500
 filters_ae = 64
 lr_ae = 1e-3
 latent_dim_ae = 120
@@ -33,35 +33,42 @@ model = 'nsf'
 hidden_features = 50
 num_transforms = 5
 num_bins = 10
-max_epochs = 100
+max_epochs = 1 #100
 
 ## Models path
 emulator_path = '/home/payeur/scratch/PIGS/sbi/models/emulator_v6.pth'
-ae_path = '/home/payeur/scratch/PIGS/SBI_PIGS/models/ae_emulated_synth_obs_500.pth'
-densityEstimator_path = '/home/payeur/scratch/PIGS/SBI_PIGS/posteriors/posterior_z_50_5_10_v3.pkl'
+ae_path = '/home/payeur/scratch/PIGS/SBI_PIGS/models/ae_emulated_synth_obs.pth'
+densityEstimator_path = '/home/payeur/scratch/PIGS/SBI_PIGS/models/posterior_test.pkl'
+
+## datafile with normalization parameters for labels
+mean_path = '/home/payeur/scratch/PIGS/SBI_PIGS/data/mean.npy'
+std_path = '/home/payeur/scratch/PIGS/SBI_PIGS/data/std.npy'
 
 ## Actions to take
-create_emulated_dataset = True
-augment_spectra = True
+create_emulated_dataset = False
+augment_synth_spectra = False
 train_emulator = False # Not a feature atm
-train_autoencoder = True
+train_autoencoder = False
 train_densityEstimator = True
 ################################################################################
-import scripts.train_DNN
-import scripts.create_emulated_dataset
-import scripts.augment_spectra
-import scripts.train_ae
-import scripts.sbi_functions
-import scripts.sbi_train
+from scripts.train_DNN import *
+from scripts.create_emulated_dataset import *
+from scripts.augment_spectra import *
+from scripts.train_ae import *
+from scripts.sbi_functions import *
+from scripts.sbi_train import *
 
 # Generating dataset of emulated synthetic spectra
 if create_emulated_dataset:
+    print('creating emulated dataset')
     gen_emulated_dataset(datafile_synth,
                          datafile_synth_emulated,
-                         emulator_path)
+                         emulator_path,
+			 std_path)
 
 # Augmenting spectra with noise
-if augment_spectra:
+if augment_synth_spectra:
+    print('augmenting synthetic spectra')
     config = [max_noise_std]
     augment_spectra(datafile_synth_emulated,
                     datafile_synth_augmented,
@@ -69,6 +76,7 @@ if augment_spectra:
 
 # Training autoencoder
 if train_autoencoder:
+    print('training autoencoder')
     config = [batch_size_ae,epochs_ae,filters_ae,lr_ae,latent_dim_ae]
     train_auto_encoder(datafile_synth_augmented,
                        datafile_obs,ae_path,
@@ -76,8 +84,9 @@ if train_autoencoder:
 
 # Training density estimator
 if train_densityEstimator:
+    print('training density estimator')
     config = [model,hidden_features,num_transforms,num_bins,max_epochs]
-    train_density_estimator(datafile_train,
+    train_density_estimator(datafile_synth_augmented,
                             ae_path,
-                            posterior_name,
+                            densityEstimator_path,
                             config)
