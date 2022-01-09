@@ -5,13 +5,7 @@ import torch.optim as optim
 import numpy as np
 import h5py
 import os
-################################################################################
-# MPIA emulator
-data_file = '/home/payeur/scratch/PIGS/emulator/data_emulator_train.h5'
-# data_file = 'data_emulator_train.h5'
-epochs_max = 401
-num_samples = 200
-################################################################################
+
 # Creating NN
 def DNN(sizes):
     # Linear layers

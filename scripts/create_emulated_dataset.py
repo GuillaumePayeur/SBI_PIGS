@@ -1,19 +1,15 @@
 import numpy as np
 import h5py
 
-from train_DNN_search_v2 import *
-
 ################################################################################
-# File to create a synthetic training dataset using the emulator starnet
+# functions to create a synthetic training dataset using the emulator starnet
 # emulator.
 batch_size = 1000
-input_filename = '/home/payeur/scratch/PIGS/sbi/data/data_emulator_train.h5'
-output_filename = 'data_synth_emulated.h5'
 delta = np.array([0.1,0.1,0.1,0.1,0.1,0.1,0.1,0.1,0.1,0.1,0.1,0.1,0.1,0.1,0.1,0.1,0.1,0.2,200,0.3,0,0.1,0])
+parameters = ['Al', 'Ba', 'C', 'Ca', 'Co', 'Cr', 'Eu', 'Mg', 'Mn', 'N', 'Na', 'Ni', 'O', 'Si', 'Sr', 'Ti', 'Zn', 'logg', 'teff', 'm_h', 'vsini', 'vt', 'vrad']
 ################################################################################
 
-parameters = ['Al', 'Ba', 'C', 'Ca', 'Co', 'Cr', 'Eu', 'Mg', 'Mn', 'N', 'Na', 'Ni', 'O', 'Si', 'Sr', 'Ti', 'Zn', 'logg', 'teff', 'm_h', 'vsini', 'vt', 'vrad']
-def gen_emulated_dataset(input_filename,output_filename):
+def gen_emulated_dataset(input_filename,output_filename,emulator_path):
     # Loading synthetic grid to get range of parameters
     with h5py.File(input_filename) as grid:
         n_spectra = np.array(grid['Al']).shape[0]
@@ -23,7 +19,7 @@ def gen_emulated_dataset(input_filename,output_filename):
 
     # Loading the emulator model
     emulator = DNN([200,268,397,569,739]).to('cuda:0')
-    emulator.load_state_dict(torch.load('/home/payeur/scratch/PIGS/sbi/models/emulator_v6.pth'))
+    emulator.load_state_dict(torch.load(emulator_path))
     emulator.eval()
 
     # Generating the labels
@@ -54,4 +50,4 @@ def gen_emulated_dataset(input_filename,output_filename):
         F.create_dataset('spectra_asymnorm_noiseless',data=spectra)
 
 if __name__ == '__main__':
-    gen_emulated_dataset(input_filename,output_filename)
+    gen_emulated_dataset(input_filename,output_filename,emulator_path)

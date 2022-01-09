@@ -2,22 +2,12 @@ import torch
 import torch.nn as nn
 import torch.optim as optim
 import torch.nn.functional as F
-# from torchsummary import summary
 import h5py
 import numpy as np
 import os
 from tqdm import tqdm
 ################################################################################
-# (Denoising) Autoencoder for the blue arm, to be used in with SBI_starnet. This
-# version trains on synthetic and observed data simultaneously
-datafile_synth = '/home/payeur/scratch/PIGS/sbi/data/data_synth_emulated_noisy.h5'
-datafile_obs = '/home/payeur/scratch/PIGS/sbi/data/data_obs_combined_all.hdf5'
-batch_size = 128
-epochs = 500
-filters = 64
-lr_enc_blue = 1e-3
-lr_dec_blue = 1e-3
-latent_dim = 120
+# (Denoising) Autoencoder for the blue arm. This version trains on synthetic and observed data simultaneously
 ################################################################################
 # Encoder for the blue arm
 class Encoder_Blue(nn.Module):
@@ -99,14 +89,10 @@ def spectra_data_synth(filename_spectra):
         # spectra, wavelengths
         spectra = np.array(f['spectra_asymnorm_noiseless'])
         spectra_blue = spectra[0:20000,:1980]
-        # wavelength grids
-        wvl = np.load('/home/payeur/scratch/PIGS/sbi/data/grid_synth.npy')
-        wvl_blue = wvl[:1980]
         # Cutting the spectra and grid for convenience
         spectra_blue = spectra_blue[:,94:94+1791]
-        wvl_blue = wvl_blue[94:94+1791]
 
-        return spectra_blue, wvl_blue
+        return spectra_blue
 
 def spectra_data_obs(filename):
     # Loading data into ram
@@ -115,7 +101,7 @@ def spectra_data_obs(filename):
         spectra_blue = np.array(f['spectra_blue'])
         e_spectra_blue = np.array(f['e_spectra_blue'])
 
-        return spectra_blue, e_spectra_blue, wvl_blue
+        return spectra_blue, e_spectra_blue
 
 # Function to create training batches
 def get_batch_synth(i):
@@ -193,11 +179,14 @@ def training_epoch(n_spectra_synth,n_spectra_obs):
         print('ME l1: {}'.format(MSE_l1))
         print('ME l2: {}'.format(MSE_l2))
 
-# Training
-if __name__ == '__main__':
+def train_auto_encoder(datafile_synth,datafile_obs,ae_path,config):
+    batch_size,epochs,filters,lr,latent_dim = tuple(config)
+    lr_enc_blue = lr
+    lr_dec_blue = lr
+
     # Loading data into ram
-    spectra_blue_synth, wvl_blue = spectra_data_synth(datafile_synth)
-    spectra_blue_obs, e_spectra_blue, wvl_blue = spectra_data_obs(datafile_obs)
+    spectra_blue_synth = spectra_data_synth(datafile_synth)
+    spectra_blue_obs, e_spectra_blue = spectra_data_obs(datafile_obs)
     n_spectra_synth = spectra_blue_synth.shape[0]
     n_spectra_obs = spectra_blue_obs.shape[0]
     n_spectra = n_spectra_synth + n_spectra_obs
@@ -218,6 +207,7 @@ if __name__ == '__main__':
         print('starting epoch {}'.format(epoch+1))
         # Training epoch
         training_epoch(n_spectra_synth,n_spectra_obs)
-        # Saving model every 20 epochs
-        if epoch % 20 == 0:
-            torch.save(ae.state_dict(), '/home/payeur/scratch/PIGS/sbi/models/ae_emulated_synth_obs_{}.pth'.format(epoch+1))
+        # # Saving model every 20 epochs
+        # if epoch % 20 == 0:
+        #   pass
+    torch.save(ae.state_dict(), ae_path)

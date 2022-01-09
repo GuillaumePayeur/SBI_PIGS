@@ -13,19 +13,12 @@ from autoencoder_synth_blue import *
 ################################################################################
 # SBI using SNPE_C
 ################################################################################
-data_file_train = '/home/payeur/scratch/PIGS/sbi/data/data_synth_emulated_noisy.h5'
-posterior_name = '/home/payeur/scratch/PIGS/sbi/posteriors/posterior_z_50_5_10_v3.pkl'
-path = '/home/payeur/scratch/PIGS/sbi/models/ae_emulated_381.pth'
-model = 'nsf'
-hidden_features = 50
-num_transforms = 5
-num_bins = 10
-max_epochs = 100
-################################################################################
 
-if __name__ == '__main__':
+def train_density_estimator(datafile_train,posterior_name,config):
+    model,hidden_features,num_transforms,num_bins,max_epochs = tuple(config)
+
     # Loading the stellar labels from the training data
-    theta,x = load_data(data_file_train)
+    theta,x = load_data(datafile_train)
     # x = disturb_spectra(x)
 
     # Restricting the spectra to the blue arm

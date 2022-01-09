@@ -10,21 +10,12 @@ from z_sbi_functions import *
 
 import warnings
 import logging
-################################################################################
-data_file_test = '/home/payeur/scratch/PIGS/sbi/data/data_obs_combined_all.hdf5'
-data_file_synth = '/home/payeur/scratch/PIGS/sbi/data/data_emulator_test.h5'
-labels = np.array(['[Al/Fe]','[Ba/Fe]','[C/Fe]','[Ca/Fe]','[Co/Fe]','[Cr/Fe]','[Eu/Fe]','[Mg/Fe]','[Mn/Fe]','[N/Fe]','[Na/Fe]','[Ni/Fe]','[O/Fe]','[Si/Fe]','[Sr/Fe]','[Ti/Fe]','[Zn/Fe]','logg','Teff','[Fe/H]','vsini','vt','vrad'])
-posterior_path = '/home/payeur/scratch/PIGS/sbi/posteriors/posterior_z_50_5_10_v5.pkl'
-ae_path = '/home/payeur/scratch/PIGS/sbi/models/ae_emulated_synth_obs_481.pth'
-################################################################################
 
 # Function to allow catching logging warnings
 def warning(self, message, *args, **kws):
     if self.isEnabledFor(logging.WARNING):
         self._log(logging.WARNING, message, args, **kws)
         raise Exception(message)
-
-logging.Logger.warning = warning
 
 def plot_pdf(samples,limits,n_bins):
 
@@ -90,16 +81,16 @@ def get_mode(posterior,observations,limits,mean,std,n_bins):
 
     return theta_pred
 
-def plot_random_posterior():
+def plot_random_posterior(mean_path,std_path):
     theta_pred = np.zeros((23))
-    spectra,_ = load_data_obs(data_file_test)
+    spectra,_ = load_data_obs(datafile_test)
     i = np.random.randint(0,spectra.shape[0])
     spectra = spectra[i,94:94+1791]
     spectra = torch.from_numpy(spectra).float()
     code = encoder(spectra).to('cpu')
 
-    mean = np.load('/home/payeur/scratch/PIGS/sbi/data/mean.npy').reshape(1,23)
-    std = np.load('/home/payeur/scratch/PIGS/sbi/data/std.npy').reshape(1,23)
+    mean = np.load('mean_path').reshape(1,23)
+    std = np.load('std_path').reshape(1,23)
 
     n_bins = np.array([150,150,150,150,150,150,150,150,150,150,150,150,150,150,150,150,150,450,450,450,150,300,300])
 
@@ -113,17 +104,17 @@ def plot_random_posterior():
 
     plot_pdf(samples,limits,n_bins)
 
-def predict(n_spectra,limits):
+def predict(mean_path,std_path,n_spectra,limits,results_name):
     # Getting the predicted theta
     theta_pred = np.zeros((n_spectra,23))
-    spectra,_ = load_data_obs(data_file_test)
+    spectra,_ = load_data_obs(datafile_test)
     spectra = spectra[0:n_spectra,94:94+1791]
     spectra = torch.from_numpy(spectra).float()
     z = encoder(spectra).to('cpu')
     valid = np.ones((n_spectra))
 
-    mean = np.load('/home/payeur/scratch/PIGS/sbi/data/mean.npy').reshape(1,23)
-    std = np.load('/home/payeur/scratch/PIGS/sbi/data/std.npy').reshape(1,23)
+    mean = np.load(mean_path).reshape(1,23)
+    std = np.load(std_path).reshape(1,23)
 
     n_bins = np.array([150,150,150,150,150,150,150,150,150,150,150,150,150,150,150,150,150,450,450,450,150,300,300])
 
@@ -140,16 +131,16 @@ def predict(n_spectra,limits):
         except Exception as E:
             print(E)
             valid[i] = 0
-    print(valid)
 
     # Saving the results
-    np.save('/home/payeur/scratch/PIGS/sbi/test_results/sols_sbi_z_v3.npy', theta_pred)
-    np.save('/home/payeur/scratch/PIGS/sbi/test_results/valid_sbi_z_v3.npy', valid)
+    np.save('{}/sols_sbi/{}.npy'.format(results_directory,results_name), theta_pred)
+    np.save('{}/valid_sbi/{}.npy'.format(results_directory,results_name), valid)
 
+def generate_predictions(datafile_synth,datafile_test,ae_path,posterior_path,mean_path,std_path,results_directory,results_name):
+    logging.Logger.warning = warning
 
-if __name__ == '__main__':
     # Loading the stellar labels from the test
-    theta,_ = load_data(data_file_synth)
+    theta,_ = load_data(datafile_synth)
 
     min = np.amin(theta,axis=0)
     max = np.amax(theta,axis=0)
@@ -172,12 +163,12 @@ if __name__ == '__main__':
     encoder = get_encoder(ae_path)
 
     # Finding the number of observed spectra
-    spectra,_ = load_data_obs(data_file_test)
+    spectra,_ = load_data_obs(datafile_test)
     n_spectra = spectra.shape[0]
     del spectra
 
     # Getting posterior for a random spectrum
-    plot_random_posterior()
+    # plot_random_posterior()
     # Predicting parameters from mode of distributions
-    # predict(10,limits)
-    # predict(int(n_spectra),limits)
+    predict(mean_path,std_path,10,limits,results_directory,results_name)
+    # predict(mean_path,std_path,int(n_spectra),limits,results_name)
