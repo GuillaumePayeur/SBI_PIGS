@@ -170,5 +170,5 @@ def generate_predictions(datafile_synth,datafile_test,ae_path,posterior_path,mea
     # Getting posterior for a random spectrum
     # plot_random_posterior()
     # Predicting parameters from mode of distributions
-    predict(datafile_test,encoder,posterior,mean_path,std_path,10,limits,results_directory,results_name)
-    # predict(datafile_test,encoder,posterior,mean_path,std_path,int(n_spectra),limits,results_directory,results_name)
+    # predict(datafile_test,encoder,posterior,mean_path,std_path,10,limits,results_directory,results_name)
+    predict(datafile_test,encoder,posterior,mean_path,std_path,int(n_spectra),limits,results_directory,results_name)
