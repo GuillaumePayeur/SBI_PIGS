@@ -14,7 +14,7 @@ from scripts.train_ae import *
 # SBI using SNPE_C
 ################################################################################
 
-def train_density_estimator(datafile_train,ae_path,posterior_path,config):
+def train_density_estimator(datafile_train,ae_path,posterior_path,sbi_agent_path,config):
     model,hidden_features,num_transforms,num_bins,max_epochs = tuple(config)
 
     # Loading the stellar labels from the training data
@@ -47,8 +47,10 @@ def train_density_estimator(datafile_train,ae_path,posterior_path,config):
         hidden_features,
         num_transforms,
         num_bins)
-    posterior = get_posterior(density_estimator,prior,theta,z,max_epochs)
+    sbi_agent, posterior = get_posterior(density_estimator,sbi_agent_path,prior,theta,z,max_epochs)
 
-    # Saving the posterior
+    # Saving the posterior and sbi_agent
     with open(posterior_path,'wb') as handle:
         pickle.dump(posterior, handle)
+    with open(sbi_agent_path,'wb') as handle:
+        pickle.dump(sbi_agent, handle)

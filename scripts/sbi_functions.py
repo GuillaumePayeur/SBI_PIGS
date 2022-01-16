@@ -44,20 +44,24 @@ def get_density_estimator(model,hidden_features,num_transforms,num_bins):
         num_transforms=num_transforms,
         num_bins=num_bins)
 
-def get_posterior(density_estimator,prior,theta,z,max_epochs):
-    sbi_agent = SNPE.SNPE_C(
-        prior,
-	device='cuda',
-        density_estimator=density_estimator)
+def get_posterior(density_estimator,sbi_agent_path,prior,theta,z,max_epochs):
+    if sbi_agent_path:
+        with open(sbi_agent_path,'rb') as handle:
+            sbi_agent = pickle.load(handle)
+    else:
+        sbi_agent = SNPE.SNPE_C(
+            prior,
+    	device='cuda',
+            density_estimator=density_estimator)
     sbi_agent.append_simulations(theta,z)
-    likelihood = sbi_agent.train(
+    posterior = sbi_agent.train(
         show_train_summary=True,
         training_batch_size=64,
         learning_rate=5e-4,
         stop_after_epochs=20,
         max_num_epochs=max_epochs)
-    posterior = sbi_agent.build_posterior(likelihood)
-    return posterior
+    posterior = sbi_agent.build_posterior(posterior)
+    return sbi_agent, posterior
 
 def disturb_spectra(spectra):
     noise = np.random.uniform(-0.005,0.005,spectra.shape[0])

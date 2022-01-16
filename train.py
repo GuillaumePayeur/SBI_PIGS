@@ -1,18 +1,24 @@
 ################################################################################
 ## Training script
 # It can
-# - Generate a dataset of spectra with continuously varying parameters using an emulator
+# - Generate a dataset of spectra with continuously varying parameters using
+#   an emulator
 # - Augment said spectra (add noise)
 # - Train an autoencoder on said synthetic spectra and observed spectra
-# - Train a density estimator to retrieve stellar parameters from observed spectra
+# - Train a density estimator to retrieve stellar parameters from observed
+#   spectra using SNPE
 
 ## Datafiles
-# Datafile containing the raw synthetic spectra
+# Synthetic datafiles
 datafile_synth = '/home/payeur/scratch/PIGS/SBI_PIGS/data/data_emulator_train.h5'
-# Datafile containing the synthetic spectra generated using the emulator
 datafile_synth_emulated = '/home/payeur/scratch/PIGS/SBI_PIGS/data/data_synth_emulated.h5'
-# Datafile containing the augmented synthetic spectra
 datafile_synth_augmented = '/home/payeur/scratch/PIGS/SBI_PIGS/data/data_synth_emulated_augmented.h5'
+# Synthetic datafiles for multiround
+datafile_synth_multiround = '/home/payeur/scratch/PIGS/SBI_PIGS/data/data_synth_multiround.h5'
+datafile_synth_multiround_emulated = '/home/payeur/scratch/PIGS/SBI_PIGS/data/data_synth_multiround_emulated.h5'
+datafile_synth_multiround_augmented = '/home/payeur/scratch/PIGS/SBI_PIGS/data/data_synth_multiround_emulated_augmented.h5'
+
+
 # Datafile containing the observed spectra
 datafile_obs = '/home/payeur/scratch/PIGS/SBI_PIGS/data/data_obs_combined_all.hdf5'
 
@@ -29,6 +35,7 @@ lr_ae = 1e-3
 latent_dim_ae = 120
 
 ## Training hyperparameters for the density estimator
+SNPE_itterations = 2
 model = 'nsf'
 hidden_features = 50
 num_transforms = 5
@@ -38,6 +45,7 @@ max_epochs = 15 #100
 ## Models path
 emulator_path = '/home/payeur/scratch/PIGS/sbi/models/emulator_v6.pth'
 ae_path = '/home/payeur/scratch/PIGS/SBI_PIGS/models/ae_emulated_synth_obs.pth'
+sbi_agent_path = '/home/payeur/scratch/PIGS/SBI_PIGS/models/sbi_agent_test.pkl'
 densityEstimator_path = '/home/payeur/scratch/PIGS/SBI_PIGS/models/posterior_test.pkl'
 
 ## datafile with normalization parameters for labels
@@ -57,6 +65,7 @@ from scripts.augment_spectra import *
 from scripts.train_ae import *
 from scripts.sbi_functions import *
 from scripts.sbi_train import *
+from update_prior import *
 
 # Generating dataset of emulated synthetic spectra
 if create_emulated_dataset:
@@ -64,7 +73,7 @@ if create_emulated_dataset:
     gen_emulated_dataset(datafile_synth,
                          datafile_synth_emulated,
                          emulator_path,
-			 std_path)
+			             std_path)
 
 # Augmenting spectra with noise
 if augment_synth_spectra:
@@ -89,4 +98,25 @@ if train_densityEstimator:
     train_density_estimator(datafile_synth_augmented,
                             ae_path,
                             densityEstimator_path,
+                            None,
                             config)
+    for _ in range(SNPE_itterations):
+        gen_updated_parameters(posterior_path,
+                               emulator_path,
+                               mean_path,
+                               std_path,
+                               datafile_synth,
+                               datafile_synth_multiround,
+                               datafile_obs)
+        gen_emulated_dataset(datafile_synth_multiround,
+                             datafile_synth_multiround_emulated,
+                             emulator_path,
+    			             std_path)
+        augment_spectra(datafile_synth_multiround_emulated,
+                        datafile_synth_multiround_augmented,
+                        config)
+        train_density_estimator(datafile_synth_multiround_augmented,
+                                ae_path,
+                                densityEstimator_path,
+                                sbi_agent_path,
+                                config)
