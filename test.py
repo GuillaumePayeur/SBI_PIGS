@@ -19,7 +19,7 @@ densityEstimator_path = '/home/payeur/scratch/PIGS/SBI_PIGS/models/posterior_tes
 
 # name of the results
 results_directory = '/home/payeur/scratch/PIGS/SBI_PIGS/results'
-results_name = 'test'
+results_name = 'v11'
 
 ################################################################################
 from scripts.train_DNN import *

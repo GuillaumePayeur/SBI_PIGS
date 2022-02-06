@@ -5,6 +5,7 @@ from sbi.inference.base import infer
 import sbi.inference.snpe.snpe_c as SNPE
 from sbi.analysis import pairplot
 from scipy.signal import savgol_filter
+import dill
 
 from scripts.train_ae import *
 ################################################################################
@@ -44,17 +45,23 @@ def get_density_estimator(model,hidden_features,num_transforms,num_bins):
         num_transforms=num_transforms,
         num_bins=num_bins)
 
-def get_posterior(density_estimator,sbi_agent_path,prior,theta,z,max_epochs):
-    if sbi_agent_path:
-        with open(sbi_agent_path,'rb') as handle:
-            sbi_agent = pickle.load(handle)
-    else:
-        sbi_agent = SNPE.SNPE_C(
-            prior,
-    	device='cuda',
-            density_estimator=density_estimator)
+def get_posterior(density_estimator,sbi_agent_path,prior,theta,z,max_epochs,first_round):
+#    if not first_round:
+#        with open(sbi_agent_path,'rb') as handle:
+#            sbi_agent = dill.load(handle)
+#    else:
+    sbi_agent = SNPE.SNPE_C(
+        prior,
+    device='cuda',
+        density_estimator=density_estimator)
     sbi_agent.append_simulations(theta,z)
+#    print(sbi_agent._theta_roundwise[0].shape)
+#    print(sbi_agent._theta_roundwise[1].shape)
+#    sbi_agent._data_round_index.append(int(not first_round))
+#    print(sbi_agent._round)
     posterior = sbi_agent.train(
+        discard_prior_samples = False,
+        resume_training = False,
         show_train_summary=True,
         training_batch_size=64,
         learning_rate=5e-4,

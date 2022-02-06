@@ -29,18 +29,18 @@ max_noise_std = 0.04
 
 ## Training hyperparameters for the autoencoder
 batch_size_ae = 128
-epochs_ae = 100 #500
+epochs_ae = 500
 filters_ae = 64
 lr_ae = 1e-3
 latent_dim_ae = 120
 
 ## Training hyperparameters for the density estimator
-SNPE_itterations = 2
+SNPE_itterations = 1
 model = 'nsf'
 hidden_features = 50
 num_transforms = 5
 num_bins = 10
-max_epochs = 15 #100
+max_epochs = 80
 
 ## Models path
 emulator_path = '/home/payeur/scratch/PIGS/sbi/models/emulator_v6.pth'
@@ -53,8 +53,8 @@ mean_path = '/home/payeur/scratch/PIGS/SBI_PIGS/data/mean.npy'
 std_path = '/home/payeur/scratch/PIGS/SBI_PIGS/data/std.npy'
 
 ## Actions to take
-create_emulated_dataset = True
-augment_synth_spectra = True
+create_emulated_dataset = False
+augment_synth_spectra = False
 train_emulator = False # Not a feature atm
 train_autoencoder = True
 train_densityEstimator = True
@@ -65,7 +65,7 @@ from scripts.augment_spectra import *
 from scripts.train_ae import *
 from scripts.sbi_functions import *
 from scripts.sbi_train import *
-from update_prior import *
+from scripts.update_prior import *
 
 # Generating dataset of emulated synthetic spectra
 if create_emulated_dataset:
@@ -98,11 +98,11 @@ if train_densityEstimator:
     train_density_estimator(datafile_synth_augmented,
                             ae_path,
                             densityEstimator_path,
-                            None,
-                            config)
+                            sbi_agent_path,
+                            config, first_round=True)
     for _ in range(SNPE_itterations):
-        gen_updated_parameters(posterior_path,
-                               emulator_path,
+        gen_updated_parameters(densityEstimator_path,
+                               ae_path,
                                mean_path,
                                std_path,
                                datafile_synth,
@@ -112,9 +112,10 @@ if train_densityEstimator:
                              datafile_synth_multiround_emulated,
                              emulator_path,
     			             std_path)
+        config_augment = [max_noise_std]
         augment_spectra(datafile_synth_multiround_emulated,
                         datafile_synth_multiround_augmented,
-                        config)
+                        config_augment)
         train_density_estimator(datafile_synth_multiround_augmented,
                                 ae_path,
                                 densityEstimator_path,

@@ -5,6 +5,7 @@ from sbi.inference.base import infer
 import sbi.inference.snle.snle_a as SNLE
 from sbi.analysis import pairplot
 import pickle
+import dill
 
 from scripts.sbi_functions import *
 from scripts.train_DNN import *
@@ -14,7 +15,7 @@ from scripts.train_ae import *
 # SBI using SNPE_C
 ################################################################################
 
-def train_density_estimator(datafile_train,ae_path,posterior_path,sbi_agent_path,config):
+def train_density_estimator(datafile_train,ae_path,posterior_path,sbi_agent_path,config,first_round=False):
     model,hidden_features,num_transforms,num_bins,max_epochs = tuple(config)
 
     # Loading the stellar labels from the training data
@@ -47,10 +48,10 @@ def train_density_estimator(datafile_train,ae_path,posterior_path,sbi_agent_path
         hidden_features,
         num_transforms,
         num_bins)
-    sbi_agent, posterior = get_posterior(density_estimator,sbi_agent_path,prior,theta,z,max_epochs)
+    sbi_agent, posterior = get_posterior(density_estimator,sbi_agent_path,prior,theta,z,max_epochs,first_round)
 
     # Saving the posterior and sbi_agent
     with open(posterior_path,'wb') as handle:
         pickle.dump(posterior, handle)
     with open(sbi_agent_path,'wb') as handle:
-        pickle.dump(sbi_agent, handle)
+        dill.dump(sbi_agent, handle)

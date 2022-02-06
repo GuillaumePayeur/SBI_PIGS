@@ -33,11 +33,9 @@ def gen_emulated_dataset(input_filename,output_filename,emulator_path,std_path):
     delta = delta/std
     labels = np.zeros((n_spectra,23))
     for i in range(n_spectra):
-        #print(labels_grid[i,:])
+        # print(labels_grid[i,:])
         for j in range(23):
             labels[i,j] = labels_grid[i,j] + np.random.uniform(-delta[j]/2,delta[j]/2,(1))
-        #print(labels[i,:])
-        #quit()
 
     # Generating the spectra
     spectra = np.zeros((n_spectra,3829))
@@ -47,6 +45,11 @@ def gen_emulated_dataset(input_filename,output_filename,emulator_path,std_path):
         batch = labels[i*batch_size:(i+1)*batch_size,:]
         batch = torch.from_numpy(batch).float().to('cuda:0')
         spectra[i*batch_size:(i+1)*batch_size,:] = emulator(batch).detach().cpu()
+    batch = labels[int(n_spectra/batch_size)*batch_size:,:]
+    print(batch)
+    batch = torch.from_numpy(batch).float().to('cuda:0')
+    spectra[int(n_spectra/batch_size)*batch_size:] = emulator(batch).detach().cpu()
+    print(spectra)
 
     # Saving the spectra to a file
     with h5py.File(output_filename,'w') as F:

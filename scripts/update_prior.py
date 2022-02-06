@@ -1,13 +1,12 @@
 import torch
 import pickle
 import numpy as np
-import matplotlib.pyplot as plt
 from scipy.signal import savgol_filter
 import time
 
-from train_DNN_search_v2 import *
-from autoencoder_synth_blue_temp import *
-from z_sbi_functions_temp import *
+from scripts.train_DNN import *
+from scripts.train_ae import *
+from scripts.sbi_functions import *
 
 import warnings
 import logging
@@ -22,15 +21,15 @@ logging.Logger.warning = warning
 
 def get_theta(posterior,observations,limits,mean,std,n_bins):
     samples = posterior.sample((5,), x=observations).cpu().numpy()
-    samples = (samples*std + mean).reshape(5,3)
+    samples = samples.reshape(5,23)
 
     return samples
 
-def sample(n_spectra,limits,mean_path,std_path,input_filename,output_filename):
+def sample(n_spectra,limits,encoder,posterior,mean_path,std_path,input_filename,output_filename,datafile_obs):
     # Getting the predicted theta
     theta_next_round = np.zeros((n_spectra*5,23))
-    spectra,_ = load_data_obs(data_file_test)
-    spectra = spectra[0:n_spectra,94+512:94+1791]
+    spectra,_ = load_data_obs(datafile_obs)
+    spectra = spectra[0:n_spectra,94:94+1791]
     spectra = torch.from_numpy(spectra).float()
     z = encoder(spectra).to('cpu')
     valid = np.ones((n_spectra))
@@ -56,17 +55,24 @@ def sample(n_spectra,limits,mean_path,std_path,input_filename,output_filename):
 
     print(theta_next_round)
 
+
+    parameters = ['Al','Ba','C','Ca','Co','Cr','Eu','Mg','Mn','N','Na','Ni','O','Si','Sr','Ti','Zn','logg','teff','m_h','vsini','vt','vrad']
+    with h5py.File(output_filename,'w') as F_next:
+        for index, parameter in enumerate(parameters):
+            F_next[parameter] = theta_next_round[:,index]
+
     # Loading the spectra and copying to new file
-    with h5py.File(input_filename,'r') as F:
-        F_next = h5py.File(output_filename,'w')
+#    with h5py.File(input_filename,'r') as F:
+#        F_next = h5py.File(output_filename,'w')
 
-        for key in list(F.keys()):
-            F_next.copy(F_next[key],F,key)
+#        for key in list(F.keys()):
+#            F_next.copy(F[key],F_next,key)
 
-    parameters = ['Al', 'Ba', 'C', 'Ca', 'Co', 'Cr', 'Eu', 'Mg', 'Mn', 'N', 'Na', 'Ni', 'O', 'Si', 'Sr', 'Ti', 'Zn', 'logg', 'teff', 'm_h', 'vsini', 'vt', 'vrad']
-    for index, parameter in enumerate(parameters):
-        F[parameter] = theta_next_round[:,index]
-    F['spectra_asymnorm_noiseless'] = np.array(F['spectra_asymnorm_noiseless'])[0:theta_next_round.shape[0]]
+#    parameters = ['Al','Ba','C','Ca','Co','Cr','Eu','Mg','Mn','N','Na','Ni','O','Si','Sr','Ti','Zn','logg','teff','m_h','vsini','vt','vrad']
+#    for index, parameter in enumerate(parameters):
+#        F_next[parameter][:] = theta_next_round[:,index]
+#    with h5py.File(input_filename,'r') as F:
+#        F_next['spectra_asymnorm_noiseless'] = np.array(F['spectra_asymnorm_noiseless'])[0:theta_next_round.shape[0]]
 
 def gen_updated_parameters(posterior_path,ae_path,mean_path,std_path,input_filename,output_filename,datafile_obs):
     # Loading the stellar labels from the test
@@ -97,5 +103,5 @@ def gen_updated_parameters(posterior_path,ae_path,mean_path,std_path,input_filen
     n_spectra = spectra.shape[0]
     del spectra
 
-    sample(10,limits)
-    # sample(int(n_spectra),limits)
+    #sample(1000,limits,encoder,posterior,mean_path,std_path,input_filename,output_filename,datafile_obs)
+    sample(int(n_spectra),limits,encoder,posterior,mean_path,std_path,input_filename,output_filename,datafile_obs)
