@@ -7,6 +7,7 @@
 # - Train an autoencoder on said synthetic spectra and observed spectra
 # - Train a density estimator to retrieve stellar parameters from observed
 #   spectra using SNPE
+# - Make a UMAP to visualize the remaining synthetic gap
 
 ## Datafiles
 # Synthetic datafiles
@@ -58,6 +59,7 @@ augment_synth_spectra = False
 train_emulator = False # Not a feature atm
 train_autoencoder = True
 train_densityEstimator = True
+umap_synthgap = True
 ################################################################################
 from scripts.train_DNN import *
 from scripts.create_emulated_dataset import *
@@ -66,6 +68,7 @@ from scripts.train_ae import *
 from scripts.sbi_functions import *
 from scripts.sbi_train import *
 from scripts.update_prior import *
+from scripts.umap_latent_codes import *
 
 # Generating dataset of emulated synthetic spectra
 if create_emulated_dataset:
@@ -90,6 +93,11 @@ if train_autoencoder:
     train_auto_encoder(datafile_synth_augmented,
                        datafile_obs,ae_path,
                        config)
+
+# Making UMAP of the synthetic gap
+if umap_synthgap:
+    umap_path = '/home/payeur/scratch/PIGS/SBI_PIGS/results/UMAP_raw.png'
+    make_umap(datafile_synth_augmented,datafile_obs,umap_path,ae_path)
 
 # Training density estimator
 if train_densityEstimator:
@@ -121,3 +129,8 @@ if train_densityEstimator:
                                 densityEstimator_path,
                                 sbi_agent_path,
                                 config)
+
+# Making UMAP of the synthetic gap
+if umap_synthgap:
+    umap_path = '/home/payeur/scratch/PIGS/SBI_PIGS/results/UMAP_SNPE.png'
+    make_umap(datafile_synth_multiround_augmented,datafile_obs,umap_path,ae_path,latent_dim_ae)
