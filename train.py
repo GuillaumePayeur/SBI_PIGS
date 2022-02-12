@@ -39,7 +39,7 @@ SNPE_itterations = 1
 model = 'nsf'
 hidden_features = 50
 num_transforms = 5
-num_bins = 10
+num_bins = 64
 max_epochs = 80
 
 ## Models path
