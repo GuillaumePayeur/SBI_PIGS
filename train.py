@@ -57,8 +57,8 @@ std_path = '/home/payeur/scratch/PIGS/SBI_PIGS/data/std.npy'
 create_emulated_dataset = False
 augment_synth_spectra = False
 train_emulator = False # Not a feature atm
-train_autoencoder = True
-train_densityEstimator = True
+train_autoencoder = False
+train_densityEstimator = False
 umap_synthgap = True
 ################################################################################
 from scripts.train_DNN import *
@@ -97,7 +97,7 @@ if train_autoencoder:
 # Making UMAP of the synthetic gap
 if umap_synthgap:
     umap_path = '/home/payeur/scratch/PIGS/SBI_PIGS/results/UMAP_raw.png'
-    make_umap(datafile_synth_augmented,datafile_obs,umap_path,ae_path)
+    make_umap(datafile_synth_augmented,datafile_obs,umap_path,ae_path,latent_dim_ae)
 
 # Training density estimator
 if train_densityEstimator:

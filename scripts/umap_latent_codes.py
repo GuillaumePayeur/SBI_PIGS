@@ -9,7 +9,7 @@ from tqdm import tqdm
 import umap.umap_ as umap
 import matplotlib.pyplot as plt
 
-from train_DNN import *
+from scripts.train_DNN import *
 
 # Encoder for the blue arm
 class Encoder_Blue(nn.Module):
@@ -68,10 +68,11 @@ class AE(nn.Module):
         z_blue = self.encoder_blue(x_blue)
         return z_blue
 
-def encode_obs():
+def encode_obs(datafile_obs,latent_dim,ae):
     spectra,_ = load_data_obs(datafile_obs)
     n_spectra = spectra.shape[0]
     spectra = spectra[:,94:94+1791]
+    print(spectra[0,:])
     codes = np.zeros((n_spectra,latent_dim))
 
     for i in range(n_spectra//1000):
@@ -83,10 +84,12 @@ def encode_obs():
     codes[n_spectra//1000*1000:,:] = ae.encode(spectra_tensor).to('cpu').detach().numpy()[:,0,:]
     return codes
 
-def encode_synth():
+def encode_synth(datafile_synth,latent_dim,ae):
     _,spectra = load_data(datafile_synth)
+    #print(spectra[0,1791+84:1791+104])
     n_spectra = spectra.shape[0]
     spectra = spectra[:,94:94+1791]
+    print(spectra[0,:])
     codes = np.zeros((n_spectra,latent_dim))
 
     for i in range(n_spectra//1000):
@@ -98,20 +101,21 @@ def encode_synth():
     codes[n_spectra//1000*1000:,:] = ae.encode(spectra_tensor).to('cpu').detach().numpy()[:,0,:]
     return codes
 
-def make_umap(datafile_synth,datafile_obs,umap_path,ae_path,ae_dim)
+def make_umap(datafile_synth,datafile_obs,umap_path,ae_path,ae_dim):
     ae = AE(64,ae_dim).to('cuda:0')
     ae.load_state_dict(torch.load(ae_path))
     ae.eval()
 
-    codes_obs = encode_obs(datafile_obs)
-    codes_synth = encode_synth(datafile_synth)
+    codes_obs = encode_obs(datafile_obs,ae_dim,ae)
+    codes_synth = encode_synth(datafile_synth,ae_dim,ae)
 
-    colors = ['blue']*codes_obs.shape[0]+['red']*codes_synth.shape[0]
-    codes = np.concatenate((codes_obs,codes_synth))
+    colors = ['red']*codes_synth.shape[0]+['blue']*codes_obs.shape[0]
+    codes = np.concatenate((codes_synth,codes_obs))
     embedding = umap.UMAP(densmap=False,n_neighbors=5,min_dist=0.3,metric='euclidean').fit_transform(codes)
     x = embedding[:,0]
     y = embedding[:,1]
 
-    plt.scatter(x,y,s=5,c=colors)
+    plt.scatter(x,y,s=0.1,alpha=0.5,c=colors)
     plt.title('UMAP of latent codes: Blue=Observed, Red=Synthetic')
     plt.savefig(umap_path)
+    plt.clf()
