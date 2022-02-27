@@ -107,8 +107,8 @@ def plot_random_posterior(mean_path,std_path):
 def predict(datafile_test,encoder,posterior,mean_path,std_path,n_spectra,limits,results_directory,results_name):
     # Getting the predicted theta
     theta_pred = np.zeros((n_spectra,23))
-    spectra,_ = load_data_obs(datafile_test)
-    spectra = spectra[0:n_spectra,94:94+1791]
+    with h5py.File(datafile_obs, 'r') as f:
+        spectra = np.array(f['spectra'][:,94:94+1791])
     spectra = torch.from_numpy(spectra).float()
     z = encoder(spectra).to('cpu')
     valid = np.ones((n_spectra))

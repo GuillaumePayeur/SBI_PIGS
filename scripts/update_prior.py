@@ -99,7 +99,8 @@ def gen_updated_parameters(posterior_path,ae_path,mean_path,std_path,input_filen
     encoder = get_encoder(ae_path)
 
     # Finding the number of observed spectra
-    spectra,_ = load_data_obs(datafile_obs)
+    with h5py.File(datafile_obs, 'r') as f:
+        spectra = np.array(f['spectra'][:,94:94+1791])
     n_spectra = spectra.shape[0]
     del spectra
 

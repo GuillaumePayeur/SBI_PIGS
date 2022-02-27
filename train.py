@@ -3,7 +3,7 @@
 # It can
 # - Generate a dataset of spectra with continuously varying parameters using
 #   an emulator
-# - Augment said spectra (add noise)
+# - Augment said spectra (add noise and continuum)
 # - Train an autoencoder on said synthetic spectra and observed spectra
 # - Train a density estimator to retrieve stellar parameters from observed
 #   spectra using SNPE
@@ -12,16 +12,16 @@
 ## Datafiles
 # Synthetic datafiles
 datafile_synth = '/home/payeur/scratch/PIGS/SBI_PIGS/data/data_emulator_train.h5'
-datafile_synth_emulated = '/home/payeur/scratch/PIGS/SBI_PIGS/data/data_synth_emulated.h5'
-datafile_synth_augmented = '/home/payeur/scratch/PIGS/SBI_PIGS/data/data_synth_emulated_augmented.h5'
+datafile_synth_emulated = '/home/payeur/scratch/PIGS/SBI_PIGS/data/data_synth_emulated_nonnormed.h5'
+datafile_synth_augmented = '/home/payeur/scratch/PIGS/SBI_PIGS/data/data_synth_emulated_augmented_nonnormed.h5'
 # Synthetic datafiles for multiround
 datafile_synth_multiround = '/home/payeur/scratch/PIGS/SBI_PIGS/data/data_synth_multiround.h5'
-datafile_synth_multiround_emulated = '/home/payeur/scratch/PIGS/SBI_PIGS/data/data_synth_multiround_emulated.h5'
-datafile_synth_multiround_augmented = '/home/payeur/scratch/PIGS/SBI_PIGS/data/data_synth_multiround_emulated_augmented.h5'
+datafile_synth_multiround_emulated = '/home/payeur/scratch/PIGS/SBI_PIGS/data/data_synth_multiround_emulated_nonnormed.h5'
+datafile_synth_multiround_augmented = '/home/payeur/scratch/PIGS/SBI_PIGS/data/data_synth_multiround_emulated_augmented_nonnormed.h5'
 
 
 # Datafile containing the observed spectra
-datafile_obs = '/home/payeur/scratch/PIGS/SBI_PIGS/data/data_obs_combined_all.hdf5'
+datafile_obs = '/home/payeur/scratch/PIGS/SBI_PIGS/data/data_obs_combined_all_nonnormed.hdf5'
 
 ## Parameters for the creation of emulated spectra
 
@@ -45,20 +45,20 @@ max_epochs = 80
 
 ## Models path
 emulator_path = '/home/payeur/scratch/PIGS/sbi/models/emulator_v6.pth'
-ae_path = '/home/payeur/scratch/PIGS/SBI_PIGS/models/ae_emulated_synth_obs.pth'
+ae_path = '/home/payeur/scratch/PIGS/SBI_PIGS/models/ae_emulated_synth_obs_nonnormed.pth'
 sbi_agent_path = '/home/payeur/scratch/PIGS/SBI_PIGS/models/sbi_agent_test.pkl'
-densityEstimator_path = '/home/payeur/scratch/PIGS/SBI_PIGS/models/posterior_test.pkl'
+densityEstimator_path = '/home/payeur/scratch/PIGS/SBI_PIGS/models/posterior_test_nonnormed.pkl'
 
 ## datafile with normalization parameters for labels
 mean_path = '/home/payeur/scratch/PIGS/SBI_PIGS/data/mean.npy'
 std_path = '/home/payeur/scratch/PIGS/SBI_PIGS/data/std.npy'
 
 ## Actions to take
-create_emulated_dataset = False
-augment_synth_spectra = False
+create_emulated_dataset = True
+augment_synth_spectra = True
 train_emulator = False # Not a feature atm
-train_autoencoder = False
-train_densityEstimator = False
+train_autoencoder = True
+train_densityEstimator = True
 umap_synthgap = True
 ################################################################################
 from scripts.train_DNN import *
@@ -84,6 +84,7 @@ if augment_synth_spectra:
     config = [max_noise_std]
     augment_spectra(datafile_synth_emulated,
                     datafile_synth_augmented,
+                    datafile_obs,
                     config)
 
 # Training autoencoder
@@ -107,7 +108,8 @@ if train_densityEstimator:
                             ae_path,
                             densityEstimator_path,
                             sbi_agent_path,
-                            config, first_round=True)
+                            config,
+                            first_round=True)
     for _ in range(SNPE_itterations):
         gen_updated_parameters(densityEstimator_path,
                                ae_path,
@@ -123,6 +125,7 @@ if train_densityEstimator:
         config_augment = [max_noise_std]
         augment_spectra(datafile_synth_multiround_emulated,
                         datafile_synth_multiround_augmented,
+                        datafile_obs,
                         config_augment)
         train_density_estimator(datafile_synth_multiround_augmented,
                                 ae_path,
