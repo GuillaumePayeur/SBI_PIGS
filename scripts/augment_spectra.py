@@ -2,8 +2,7 @@ import numpy as np
 import h5py
 
 def denormalize(n_spectra,spectra_obs,F_augmented):
-    n = 1
-#    n = n_spectra // spectra_obs.shape[0]
+    n = n_spectra // spectra_obs.shape[0]
     for i,spectrum_obs in enumerate(spectra_obs):
         spectra_synth = np.array(F_augmented['spectra_asymnorm_noiseless'][i*n:(i+1)*n,94:94+1791])
         x = np.arange(0,spectrum_obs.shape[0])/1791

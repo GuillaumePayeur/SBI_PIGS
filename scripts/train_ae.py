@@ -138,7 +138,7 @@ def training_epoch(ae,spectra_blue_synth,spectra_blue_obs,e_spectra_blue,n_spect
             # loss & backprop
             ae.zero_grad()
             y_blue = ae(x_blue)
-            loss = l2(x_blue,y_blue)
+            loss = l1(x_blue,y_blue)
             SSE += batch_size*loss
             loss.backward()
             optimizer.step()
@@ -147,7 +147,7 @@ def training_epoch(ae,spectra_blue_synth,spectra_blue_obs,e_spectra_blue,n_spect
             # loss & backprop
             ae.zero_grad()
             y_blue = ae(x_blue)
-            loss = weighted_l2(x_blue,y_blue,e_blue)
+            loss = weighted_l1(x_blue,y_blue,e_blue)
             SSE += batch_size*loss
             loss.backward()
             optimizer.step()

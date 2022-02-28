@@ -81,6 +81,7 @@ def get_mode(posterior,observations,limits,mean,std,n_bins):
 
     return theta_pred
 
+# needs fixing
 def plot_random_posterior(mean_path,std_path):
     theta_pred = np.zeros((23))
     spectra,_ = load_data_obs(datafile_test)
@@ -109,6 +110,7 @@ def predict(datafile_test,encoder,posterior,mean_path,std_path,n_spectra,limits,
     theta_pred = np.zeros((n_spectra,23))
     with h5py.File(datafile_obs, 'r') as f:
         spectra = np.array(f['spectra'][:,94:94+1791])
+        spectra = spectra/np.mean(spectra)
     spectra = torch.from_numpy(spectra).float()
     z = encoder(spectra).to('cpu')
     valid = np.ones((n_spectra))
