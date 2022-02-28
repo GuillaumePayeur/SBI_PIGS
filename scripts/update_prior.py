@@ -28,8 +28,9 @@ def get_theta(posterior,observations,limits,mean,std,n_bins):
 def sample(n_spectra,limits,encoder,posterior,mean_path,std_path,input_filename,output_filename,datafile_obs):
     # Getting the predicted theta
     theta_next_round = np.zeros((n_spectra*5,23))
-    spectra,_ = load_data_obs(datafile_obs)
-    spectra = spectra[0:n_spectra,94:94+1791]
+    with h5py.File(datafile_obs, 'r') as f:
+        spectra = np.array(f['spectra'][:,94:94+1791])
+        spectra = spectra/np.mean(spectra)
     spectra = torch.from_numpy(spectra).float()
     z = encoder(spectra).to('cpu')
     valid = np.ones((n_spectra))
@@ -101,6 +102,7 @@ def gen_updated_parameters(posterior_path,ae_path,mean_path,std_path,input_filen
     # Finding the number of observed spectra
     with h5py.File(datafile_obs, 'r') as f:
         spectra = np.array(f['spectra'][:,94:94+1791])
+        spectra = spectra/np.mean(spectra)
     n_spectra = spectra.shape[0]
     del spectra
 

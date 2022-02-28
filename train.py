@@ -21,7 +21,7 @@ datafile_synth_multiround_augmented = '/home/payeur/scratch/PIGS/SBI_PIGS/data/d
 
 
 # Datafile containing the observed spectra
-datafile_obs = '/home/payeur/scratch/PIGS/SBI_PIGS/data/data_obs_combined_all_nonnormed.hdf5'
+datafile_obs = '/home/payeur/scratch/PIGS/SBI_PIGS/data/data_obs_combined_all_nonnormed.h5'
 
 ## Parameters for the creation of emulated spectra
 
@@ -30,7 +30,7 @@ max_noise_std = 0.04
 
 ## Training hyperparameters for the autoencoder
 batch_size_ae = 128
-epochs_ae = 500
+epochs_ae = 20 #500
 filters_ae = 64
 lr_ae = 1e-3
 latent_dim_ae = 120
@@ -41,7 +41,7 @@ model = 'nsf'
 hidden_features = 50
 num_transforms = 5
 num_bins = 64
-max_epochs = 80
+max_epochs = 1 #80
 
 ## Models path
 emulator_path = '/home/payeur/scratch/PIGS/sbi/models/emulator_v6.pth'
@@ -54,12 +54,12 @@ mean_path = '/home/payeur/scratch/PIGS/SBI_PIGS/data/mean.npy'
 std_path = '/home/payeur/scratch/PIGS/SBI_PIGS/data/std.npy'
 
 ## Actions to take
-create_emulated_dataset = True
-augment_synth_spectra = True
+create_emulated_dataset = False
+augment_synth_spectra = False
 train_emulator = False # Not a feature atm
-train_autoencoder = True
+train_autoencoder = False
 train_densityEstimator = True
-umap_synthgap = True
+umap_synthgap = False
 ################################################################################
 from scripts.train_DNN import *
 from scripts.create_emulated_dataset import *
@@ -76,7 +76,7 @@ if create_emulated_dataset:
     gen_emulated_dataset(datafile_synth,
                          datafile_synth_emulated,
                          emulator_path,
-			             std_path)
+			 std_path)
 
 # Augmenting spectra with noise
 if augment_synth_spectra:

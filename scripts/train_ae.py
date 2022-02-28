@@ -99,7 +99,8 @@ def spectra_data_obs(filename):
     with h5py.File(filename, 'r') as f:
         # Blue spectra, variances
         spectra_blue = np.array(f['spectra'][:,94:94+1791])
-        e_spectra_blue = np.array(f['error_spectra'][:,94:94+1791])
+        spectra_blue = spectra_blue/np.mean(spectra_blue)
+        e_spectra_blue = np.array(f['error_spectra'][:,94:94+1791])*0+1
 
         return spectra_blue, e_spectra_blue
 
