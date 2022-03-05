@@ -42,6 +42,8 @@ hidden_features = 50
 num_transforms = 5
 num_bins = 64
 max_epochs = 80
+lr_sbi = 5e-4
+batch_size_sbi = 64
 
 ## Models path
 emulator_path = '/home/payeur/scratch/PIGS/sbi/models/emulator_v6.pth'
@@ -90,9 +92,10 @@ if augment_synth_spectra:
 # Training autoencoder
 if train_autoencoder:
     print('training autoencoder')
-    config = [batch_size_ae,epochs_ae,filters_ae,lr_ae,latent_dim_ae]
+    config = [batch_size_ae,epochs_ae,filters_ae,lr_ae,latent_dim_ae,lr_sbi,batch_size_sbi]
     train_auto_encoder(datafile_synth_augmented,
-                       datafile_obs,ae_path,
+                       datafile_obs,
+                       ae_path,
                        config)
 
 # Making UMAP of the synthetic gap
@@ -127,6 +130,10 @@ if train_densityEstimator:
                         datafile_synth_multiround_augmented,
                         datafile_obs,
                         config_augment)
+        train_auto_encoder(datafile_synth_multiround_augmented,
+                           datafile_obs,
+                           ae_path,
+                           config)
         train_density_estimator(datafile_synth_multiround_augmented,
                                 ae_path,
                                 densityEstimator_path,

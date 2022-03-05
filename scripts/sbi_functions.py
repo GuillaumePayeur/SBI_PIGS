@@ -45,7 +45,7 @@ def get_density_estimator(model,hidden_features,num_transforms,num_bins):
         num_transforms=num_transforms,
         num_bins=num_bins)
 
-def get_posterior(density_estimator,sbi_agent_path,prior,theta,z,max_epochs,first_round):
+def get_posterior(density_estimator,sbi_agent_path,prior,theta,z,max_epochs,first_round,lr,batch_size):
 #    if not first_round:
 #        with open(sbi_agent_path,'rb') as handle:
 #            sbi_agent = dill.load(handle)
@@ -55,25 +55,16 @@ def get_posterior(density_estimator,sbi_agent_path,prior,theta,z,max_epochs,firs
     device='cuda',
         density_estimator=density_estimator)
     sbi_agent.append_simulations(theta,z)
-#    print(sbi_agent._theta_roundwise[0].shape)
-#    print(sbi_agent._theta_roundwise[1].shape)
-#    sbi_agent._data_round_index.append(int(not first_round))
-#    print(sbi_agent._round)
     posterior = sbi_agent.train(
         discard_prior_samples = False,
         resume_training = False,
         show_train_summary=True,
-        training_batch_size=64,
-        learning_rate=5e-4,
+        training_batch_size=batch_size,
+        learning_rate=lr,
         stop_after_epochs=20,
         max_num_epochs=max_epochs)
     posterior = sbi_agent.build_posterior(posterior)
     return sbi_agent, posterior
-
-def disturb_spectra(spectra):
-    noise = np.random.uniform(-0.005,0.005,spectra.shape[0])
-    noise = np.reshape(np.repeat(noise,spectra.shape[1],axis=0),(spectra.shape[0],spectra.shape[1]))
-    return spectra+noise
 
 def continuum_error(spectra):
     b = np.random.uniform(0.9,1.05,spectra.shape[0])

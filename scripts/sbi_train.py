@@ -16,7 +16,7 @@ from scripts.train_ae import *
 ################################################################################
 
 def train_density_estimator(datafile_train,ae_path,posterior_path,sbi_agent_path,config,first_round=False):
-    model,hidden_features,num_transforms,num_bins,max_epochs = tuple(config)
+    model,hidden_features,num_transforms,num_bins,max_epochs,lr,batch_size = tuple(config)
 
     # Loading the stellar labels from the training data
     theta,x = load_data(datafile_train)
@@ -48,7 +48,7 @@ def train_density_estimator(datafile_train,ae_path,posterior_path,sbi_agent_path
         hidden_features,
         num_transforms,
         num_bins)
-    sbi_agent, posterior = get_posterior(density_estimator,sbi_agent_path,prior,theta,z,max_epochs,first_round)
+    sbi_agent, posterior = get_posterior(density_estimator,sbi_agent_path,prior,theta,z,max_epochs,first_round,lr,batch_size)
 
     # Saving the posterior and sbi_agent
     with open(posterior_path,'wb') as handle:

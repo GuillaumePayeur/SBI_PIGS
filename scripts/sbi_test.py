@@ -17,7 +17,7 @@ def warning(self, message, *args, **kws):
         self._log(logging.WARNING, message, args, **kws)
         raise Exception(message)
 
-def plot_pdf(samples,limits,n_bins):
+def plot_pdf(samples,limits,n_bins,j):
 
     plt.rcParams['xtick.labelsize'] = 8
     plt.rcParams['ytick.labelsize'] = 0
@@ -61,8 +61,7 @@ def plot_pdf(samples,limits,n_bins):
                         right=0.995,
                         hspace=0.155,
                         wspace=0.165)
-#    plt.show()
-    plt.savefig('test.png')
+    plt.savefig('/home/payeur/scratch/PIGS/SBI_PIGS/results/pdf_plot_{}.h5'.format(j))
 
 def get_mode(posterior,observations,limits,mean,std,n_bins):
     samples = posterior.sample((30000,), x=observations).cpu().numpy()
@@ -81,29 +80,32 @@ def get_mode(posterior,observations,limits,mean,std,n_bins):
 
     return theta_pred
 
-# needs fixing
 def plot_random_posterior(mean_path,std_path):
     theta_pred = np.zeros((23))
-    spectra,_ = load_data_obs(datafile_test)
-    i = np.random.randint(0,spectra.shape[0])
-    spectra = spectra[i,94:94+1791]
-    spectra = torch.from_numpy(spectra).float()
-    code = encoder(spectra).to('cpu')
+    with h5py.File(datafile_test, 'r') as f:
+        spectra = np.array(f['spectra'][:,94:94+1791])
+        spectra = spectra/np.mean(spectra)
 
-    mean = np.load('mean_path').reshape(1,23)
-    std = np.load('std_path').reshape(1,23)
+    for j in range(5):
+        i = np.random.randint(0,spectra.shape[0])
+        spectra = spectra[i,:]
+        spectra = torch.from_numpy(spectra).float()
+        code = encoder(spectra).to('cpu')
 
-    n_bins = np.array([150,150,150,150,150,150,150,150,150,150,150,150,150,150,150,150,150,450,450,450,150,300,300])
+        mean = np.load('mean_path').reshape(1,23)
+        std = np.load('std_path').reshape(1,23)
 
-    for i in range(2):
-        limits[:,i] = limits[:,i]*std[0,:] + mean[0,:]
+        n_bins = np.array([150,150,150,150,150,150,150,150,150,150,150,150,150,150,150,150,150,450,450,450,150,300,300])
 
-    samples = posterior.sample((300000,), x=code).cpu().numpy()
-    samples = samples*std + mean
+        for i in range(2):
+            limits[:,i] = limits[:,i]*std[0,:] + mean[0,:]
 
-    # theta_pred = get_mode(posterior,code,limits,mean,std,n_bins)
+        samples = posterior.sample((300000,), x=code).cpu().numpy()
+        samples = samples*std + mean
 
-    plot_pdf(samples,limits,n_bins)
+        # theta_pred = get_mode(posterior,code,limits,mean,std,n_bins)
+
+        plot_pdf(samples,limits,n_bins,j)
 
 def predict(datafile_test,encoder,posterior,mean_path,std_path,n_spectra,limits,results_directory,results_name):
     # Getting the predicted theta
@@ -170,8 +172,8 @@ def generate_predictions(datafile_synth,datafile_test,ae_path,posterior_path,mea
     n_spectra = spectra.shape[0]
     del spectra
 
-    # Getting posterior for a random spectrum
-    # plot_random_posterior()
     # Predicting parameters from mode of distributions
     # predict(datafile_test,encoder,posterior,mean_path,std_path,10,limits,results_directory,results_name)
     predict(datafile_test,encoder,posterior,mean_path,std_path,int(n_spectra),limits,results_directory,results_name)
+    # Getting posterior for random spectra
+    plot_random_posterior()
