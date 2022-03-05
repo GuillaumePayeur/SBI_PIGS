@@ -41,7 +41,7 @@ model = 'nsf'
 hidden_features = 50
 num_transforms = 5
 num_bins = 64
-max_epochs = 40 #80
+max_epochs = 80
 
 ## Models path
 emulator_path = '/home/payeur/scratch/PIGS/sbi/models/emulator_v6.pth'
@@ -59,7 +59,7 @@ augment_synth_spectra = True
 train_emulator = False # Not a feature atm
 train_autoencoder = True
 train_densityEstimator = True
-umap_synthgap = True
+umap_synthgap = False
 ################################################################################
 from scripts.train_DNN import *
 from scripts.create_emulated_dataset import *

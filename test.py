@@ -6,20 +6,20 @@
 
 ## Datafiles
 # datafile of synthetic spectra (for determining the limits of the stellar paramter PDFs)
-datafile_synth = '/home/payeur/scratch/PIGS/sbi/data/data_emulator_test.h5'
+datafile_synth = '/home/payeur/scratch/PIGS/SBI_PIGS/data/data_emulator_test.h5'
 # datafile of observed spectra
-datafile_obs = '/home/payeur/scratch/PIGS/sbi/data/data_obs_combined_all.hdf5'
+datafile_obs = '/home/payeur/scratch/PIGS/SBI_PIGS/data/data_obs_combined_all_nonnormed.h5'
 # datafile with normalization parameters for labels
 mean_path = '/home/payeur/scratch/PIGS/SBI_PIGS/data/mean.npy'
 std_path = '/home/payeur/scratch/PIGS/SBI_PIGS/data/std.npy'
 
 ## Models path
-ae_path = '/home/payeur/scratch/PIGS/SBI_PIGS/models/ae_emulated_synth_obs.pth'
-densityEstimator_path = '/home/payeur/scratch/PIGS/SBI_PIGS/models/posterior_test.pkl'
+ae_path = '/home/payeur/scratch/PIGS/SBI_PIGS/models/ae_emulated_synth_obs_nonnormed.pth'
+densityEstimator_path = '/home/payeur/scratch/PIGS/SBI_PIGS/models/posterior_test_nonnormed.pkl'
 
 # name of the results
 results_directory = '/home/payeur/scratch/PIGS/SBI_PIGS/results'
-results_name = 'v12'
+results_name = 'v2_1'
 
 ################################################################################
 from scripts.train_DNN import *
