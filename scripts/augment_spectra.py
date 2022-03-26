@@ -1,6 +1,21 @@
 import numpy as np
 import h5py
 
+# def denormalize(n_spectra,spectra_obs,F_augmented):
+#     n = n_spectra // spectra_obs.shape[0]
+#     for i,spectrum_obs in enumerate(spectra_obs):
+#         spectra_synth = np.array(F_augmented['spectra_asymnorm_noiseless'][i*n:(i+1)*n,94:94+1791])
+#         x = np.arange(0,spectrum_obs.shape[0])/1791
+#         if i%1000 == 0:
+#             print(i)
+#         for j in range(n):
+#             popt = np.polyfit(x,spectrum_obs,10)
+#             for k, parameter in enumerate(popt):
+#                 if k>7:
+#                     popt[k] += np.random.uniform(-parameter/75,parameter/75)
+#             F_augmented['spectra_asymnorm_noiseless'][i*n+j,94:94+1791] = poly(x,popt)*spectra_synth[j,:]
+#     return F_augmented
+
 def denormalize(n_spectra,spectra_obs,F_augmented):
     n = n_spectra // spectra_obs.shape[0]
     for i,spectrum_obs in enumerate(spectra_obs):
@@ -9,17 +24,21 @@ def denormalize(n_spectra,spectra_obs,F_augmented):
         if i%1000 == 0:
             print(i)
         for j in range(n):
-            popt = np.polyfit(x,spectrum_obs,10)
+            popt = np.polynomial.legendre.Legendre.fit(x,spectrum_obs,15).convert().coef
             for k, parameter in enumerate(popt):
-                if k>7:
-                    popt[k] += np.random.uniform(-parameter/75,parameter/75)
-            F_augmented['spectra_asymnorm_noiseless'][i*n+j,94:94+1791] = poly(x,popt)*spectra_synth[j,:]
+                if 0<k<10:
+                    popt_noise[j] += np.random.uniform(-0.05,0.05)
+            F_augmented['spectra_asymnorm_noiseless'][i*n+j,94:94+1791] = legendre(x,popt)*spectra_synth[j,:]
     return F_augmented
 
-def poly(x,coeffs):
-    y = np.zeros(x.shape)
-    for i, coeff in enumerate(np.flip(coeffs)):
-        y += coeff*x**i
+# def poly(x,coeffs):
+#     y = np.zeros(x.shape)
+#     for i, coeff in enumerate(np.flip(coeffs)):
+#         y += coeff*x**i
+#     return y
+
+def legendre(x,coeffs):
+    y = np.polynomial.legendre.legval(x,coeffs)
     return y
 
 def add_noise(spectrum,max_noise):

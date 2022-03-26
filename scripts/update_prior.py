@@ -21,14 +21,14 @@ logging.Logger.warning = warning
 
 def get_theta(posterior,observations,limits,mean,std,n_bins):
     observations = observations.to('cuda:0')
-    samples = posterior.sample((5,), x=observations).cpu().numpy()
-    samples = samples.reshape(5,23)
+    samples = posterior.sample((10,), x=observations).cpu().numpy()
+    samples = samples.reshape(10,23)
 
     return samples
 
 def sample(n_spectra,limits,encoder,posterior,mean_path,std_path,input_filename,output_filename,datafile_obs):
     # Getting the predicted theta
-    theta_next_round = np.zeros((n_spectra*5,23))
+    theta_next_round = np.zeros((n_spectra*10,23))
     with h5py.File(datafile_obs, 'r') as f:
         spectra = np.array(f['spectra'][:,94:94+1791])
         spectra = spectra/np.mean(spectra)

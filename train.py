@@ -39,11 +39,11 @@ latent_dim_ae = 120
 SNPE_itterations = 2
 model = 'nsf'
 hidden_features = 50
-num_transforms = 5
-num_bins = 64
+num_transforms = 10 #5
+num_bins = 128 #64
 max_epochs = 60
-lr_sbi = 1e-3 #5e-4
-batch_size_sbi = 128 #64
+lr_sbi = 5e-4
+batch_size_sbi = 128
 
 ## Models path
 emulator_path = '/home/payeur/scratch/PIGS/sbi/models/emulator_v6.pth'
