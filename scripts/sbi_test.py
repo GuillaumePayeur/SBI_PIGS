@@ -64,6 +64,7 @@ def plot_pdf(samples,limits,n_bins,j):
     plt.savefig('/home/payeur/scratch/PIGS/SBI_PIGS/results/pdf_plot_{}.h5'.format(j))
 
 def get_mode(posterior,observations,limits,mean,std,n_bins):
+    observations = observations.to('cuda:0')
     samples = posterior.sample((30000,), x=observations).cpu().numpy()
     samples = samples*std + mean
 

@@ -36,20 +36,20 @@ lr_ae = 1e-3
 latent_dim_ae = 120
 
 ## Training hyperparameters for the density estimator
-SNPE_itterations = 1
+SNPE_itterations = 2
 model = 'nsf'
 hidden_features = 50
 num_transforms = 5
 num_bins = 64
-max_epochs = 80
-lr_sbi = 5e-4
-batch_size_sbi = 64
+max_epochs = 60
+lr_sbi = 1e-3 #5e-4
+batch_size_sbi = 128 #64
 
 ## Models path
 emulator_path = '/home/payeur/scratch/PIGS/sbi/models/emulator_v6.pth'
 ae_path = '/home/payeur/scratch/PIGS/SBI_PIGS/models/ae_emulated_synth_obs_nonnormed.pth'
 sbi_agent_path = '/home/payeur/scratch/PIGS/SBI_PIGS/models/sbi_agent_test.pkl'
-densityEstimator_path = '/home/payeur/scratch/PIGS/SBI_PIGS/models/posterior_test_nonnormed.pkl'
+densityEstimator_path = '/home/payeur/scratch/PIGS/SBI_PIGS/models/posterior_2.pkl'
 
 ## datafile with normalization parameters for labels
 mean_path = '/home/payeur/scratch/PIGS/SBI_PIGS/data/mean.npy'
@@ -61,7 +61,7 @@ augment_synth_spectra = True
 train_emulator = False # Not a feature atm
 train_autoencoder = True
 train_densityEstimator = True
-umap_synthgap = False
+umap_synthgap = True
 ################################################################################
 from scripts.train_DNN import *
 from scripts.create_emulated_dataset import *
@@ -90,13 +90,13 @@ if augment_synth_spectra:
                     config)
 
 # Training autoencoder
+config_ae = [batch_size_ae,epochs_ae,filters_ae,lr_ae,latent_dim_ae]
 if train_autoencoder:
     print('training autoencoder')
-    config = [batch_size_ae,epochs_ae,filters_ae,lr_ae,latent_dim_ae,lr_sbi,batch_size_sbi]
     train_auto_encoder(datafile_synth_augmented,
                        datafile_obs,
                        ae_path,
-                       config)
+                       config_ae)
 
 # Making UMAP of the synthetic gap
 if umap_synthgap:
@@ -106,7 +106,7 @@ if umap_synthgap:
 # Training density estimator
 if train_densityEstimator:
     print('training density estimator')
-    config = [model,hidden_features,num_transforms,num_bins,max_epochs]
+    config = [model,hidden_features,num_transforms,num_bins,max_epochs,lr_sbi,batch_size_sbi]
     train_density_estimator(datafile_synth_augmented,
                             ae_path,
                             densityEstimator_path,
@@ -133,12 +133,13 @@ if train_densityEstimator:
         train_auto_encoder(datafile_synth_multiround_augmented,
                            datafile_obs,
                            ae_path,
-                           config)
+                           config_ae)
         train_density_estimator(datafile_synth_multiround_augmented,
                                 ae_path,
                                 densityEstimator_path,
                                 sbi_agent_path,
-                                config)
+                                config,
+                                first_round=True)
 
 # Making UMAP of the synthetic gap
 if umap_synthgap:

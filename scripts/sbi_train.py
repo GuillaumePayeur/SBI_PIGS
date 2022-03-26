@@ -53,5 +53,5 @@ def train_density_estimator(datafile_train,ae_path,posterior_path,sbi_agent_path
     # Saving the posterior and sbi_agent
     with open(posterior_path,'wb') as handle:
         pickle.dump(posterior, handle)
-    with open(sbi_agent_path,'wb') as handle:
-        dill.dump(sbi_agent, handle)
+    #with open(sbi_agent_path,'wb') as handle:
+    #    dill.dump(sbi_agent, handle)

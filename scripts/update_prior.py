@@ -20,6 +20,7 @@ def warning(self, message, *args, **kws):
 logging.Logger.warning = warning
 
 def get_theta(posterior,observations,limits,mean,std,n_bins):
+    observations = observations.to('cuda:0')
     samples = posterior.sample((5,), x=observations).cpu().numpy()
     samples = samples.reshape(5,23)
 
