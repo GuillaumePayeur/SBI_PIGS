@@ -49,7 +49,7 @@ batch_size_sbi = 128
 emulator_path = '/home/payeur/scratch/PIGS/sbi/models/emulator_v6.pth'
 ae_path = '/home/payeur/scratch/PIGS/SBI_PIGS/models/ae_emulated_synth_obs_nonnormed.pth'
 sbi_agent_path = '/home/payeur/scratch/PIGS/SBI_PIGS/models/sbi_agent_test.pkl'
-densityEstimator_path = '/home/payeur/scratch/PIGS/SBI_PIGS/models/posterior_2.pkl'
+densityEstimator_path = '/home/payeur/scratch/PIGS/SBI_PIGS/models/posterior_3.pkl'
 
 ## datafile with normalization parameters for labels
 mean_path = '/home/payeur/scratch/PIGS/SBI_PIGS/data/mean.npy'

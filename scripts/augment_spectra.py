@@ -27,7 +27,7 @@ def denormalize(n_spectra,spectra_obs,F_augmented):
             popt = np.polynomial.legendre.Legendre.fit(x,spectrum_obs,15).convert().coef
             for k, parameter in enumerate(popt):
                 if 0<k<10:
-                    popt_noise[j] += np.random.uniform(-0.05,0.05)
+                    popt[j] += np.random.uniform(-0.05,0.05)
             F_augmented['spectra_asymnorm_noiseless'][i*n+j,94:94+1791] = legendre(x,popt)*spectra_synth[j,:]
     return F_augmented
 
