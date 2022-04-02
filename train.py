@@ -36,13 +36,13 @@ lr_ae = 1e-3
 latent_dim_ae = 120
 
 ## Training hyperparameters for the density estimator
-SNPE_itterations = 2
+SNPE_itterations = 1
 model = 'nsf'
-hidden_features = 50
-num_transforms = 10 #5
-num_bins = 128 #64
-max_epochs = 60
-lr_sbi = 5e-4
+hidden_features = 100
+num_transforms = 5
+num_bins = 64
+max_epochs = 120
+lr_sbi = 8e-4
 batch_size_sbi = 128
 
 ## Models path

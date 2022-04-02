@@ -50,10 +50,10 @@ def sample(n_spectra,limits,encoder,posterior,mean_path,std_path,input_filename,
 
             samples = get_theta(posterior,code,limits,mean,std,n_bins)
 
-            theta_next_round[i*5:(i+1)*5,:] = samples
+            theta_next_round[i*10:(i+1)*10,:] = samples
         except Exception as E:
             print(E)
-            theta_next_round[i*5:(i+1)*5,:] = theta_next_round[(i-1)*5:(i)*5,:]
+            theta_next_round[i*10:(i+1)*10,:] = theta_next_round[(i-1)*10:(i)*10,:]
 
     print(theta_next_round)
 
