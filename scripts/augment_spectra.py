@@ -59,7 +59,9 @@ def augment_spectra(input_filename,output_filename,datafile_obs,config):
 
     F_obs = h5py.File(datafile_obs,'r')
     spectra_obs = np.array(F_obs['spectra'][:,94:94+1791])
-    spectra_obs = spectra_obs/np.mean(spectra_obs)
+    mean_obs = np.expand_dims(np.mean(spectra_obs,axis=1),1)
+    spectra_obs = spectra_obs/mean_obs
+    # spectra_obs = spectra_obs/np.mean(spectra_obs)
 
     # denormalizing
     n_spectra = F_augmented['spectra_asymnorm_noiseless'].shape[0]

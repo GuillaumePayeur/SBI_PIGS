@@ -71,7 +71,9 @@ class AE(nn.Module):
 def encode_obs(datafile_obs,latent_dim,ae):
     with h5py.File(datafile_obs, 'r') as f:
         spectra = np.array(f['spectra'][:,94:94+1791])
-        spectra = spectra/np.mean(spectra)
+        mean_blue = np.expand_dims(np.mean(spectra_blue,axis=1),1)
+        spectra_blue = spectra_blue/mean_blue
+        # spectra = spectra/np.mean(spectra)
     n_spectra = spectra.shape[0]
     print(spectra[0,:])
     codes = np.zeros((n_spectra,latent_dim))

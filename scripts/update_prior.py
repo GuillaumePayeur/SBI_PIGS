@@ -103,7 +103,9 @@ def gen_updated_parameters(posterior_path,ae_path,mean_path,std_path,input_filen
     # Finding the number of observed spectra
     with h5py.File(datafile_obs, 'r') as f:
         spectra = np.array(f['spectra'][:,94:94+1791])
-        spectra = spectra/np.mean(spectra)
+        mean_obs = np.expand_dims(np.mean(spectra,axis=1),1)
+        spectra = spectra/mean_obs
+        # spectra = spectra/np.mean(spectra)
     n_spectra = spectra.shape[0]
     del spectra
 

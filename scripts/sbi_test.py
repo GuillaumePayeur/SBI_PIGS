@@ -113,7 +113,9 @@ def predict(datafile_test,encoder,posterior,mean_path,std_path,n_spectra,limits,
     theta_pred = np.zeros((n_spectra,23))
     with h5py.File(datafile_test, 'r') as f:
         spectra = np.array(f['spectra'][:,94:94+1791])
-        spectra = spectra/np.mean(spectra)
+        mean_obs = np.expand_dims(np.mean(spectra,axis=1),1)
+        spectra = spectra/mean_obs
+        # spectra = spectra/np.mean(spectra)
     spectra = torch.from_numpy(spectra).float()
     z = encoder(spectra).to('cpu')
     valid = np.ones((n_spectra))
