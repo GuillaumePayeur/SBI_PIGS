@@ -45,7 +45,12 @@ def get_density_estimator(model,hidden_features,num_transforms,num_bins):
         num_transforms=num_transforms,
         num_bins=num_bins)
 
+def shuffle_z_theta(a, b):
+    p = np.random.permutation(a.shape[0])
+    return a[p], b[p]
+
 def get_posterior(density_estimator,sbi_agent_path,prior,theta,z,max_epochs,first_round,lr,batch_size):
+    z,theta = shuffle_z_theta(z,theta)
 #    if not first_round:
 #        with open(sbi_agent_path,'rb') as handle:
 #            sbi_agent = dill.load(handle)

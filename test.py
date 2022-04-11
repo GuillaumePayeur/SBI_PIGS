@@ -6,7 +6,7 @@
 
 ## Datafiles
 # datafile of synthetic spectra (for determining the limits of the stellar paramter PDFs)
-datafile_synth = '/home/payeur/scratch/PIGS/SBI_PIGS/data/data_emulator_test.h5'
+datafile_synth = '/home/payeur/scratch/PIGS/SBI_PIGS/data/data_synth_multiround_emulated_augmented_nonnormed.h5'
 # datafile of observed spectra
 datafile_obs = '/home/payeur/scratch/PIGS/SBI_PIGS/data/data_obs_combined_all_nonnormed.h5'
 # datafile with normalization parameters for labels

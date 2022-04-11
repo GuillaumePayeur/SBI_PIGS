@@ -18,6 +18,7 @@ def warning(self, message, *args, **kws):
         raise Exception(message)
 
 def plot_pdf(samples,limits,n_bins,index):
+    labels = ['Al','Ba','C','Ca','Co','Cr','Eu','Mg','Mn','N','Na','Ni','O','Si','Sr','Ti','Zn','logg','teff','m_h','vsini','vt','vrad']
 
     plt.rcParams['xtick.labelsize'] = 8
     plt.rcParams['ytick.labelsize'] = 0
@@ -76,8 +77,8 @@ def get_mode(posterior,observations,limits,mean,std,n_bins,make_plot,index):
             range=(limits[m,0],limits[m,1]),
             density=True)
 
-        y = savgol_filter(n,29,11)
-        theta_pred[m] = (bins[np.argmax(y)] + bins[np.argmax(y)+1])/2
+#        y = savgol_filter(n,29,11)
+        theta_pred[m] = (bins[np.argmax(n)] + bins[np.argmax(n)+1])/2
 
     if make_plot:
         plot_pdf(samples,limits,n_bins,index)
@@ -132,7 +133,7 @@ def predict(datafile_test,encoder,posterior,mean_path,std_path,n_spectra,limits,
         limits[:,i] = limits[:,i]*std[0,:] + mean[0,:]
 
     for i in range(n_spectra):
-        if i < 100:
+        if i < 5:
             make_plot = True
         else:
             make_plot = False
@@ -159,7 +160,7 @@ def generate_predictions(datafile_synth,datafile_test,ae_path,posterior_path,mea
     min = np.amin(theta,axis=0)
     max = np.amax(theta,axis=0)
 
-    delta = (max-min)/3
+    delta = 0*(max-min)/3
     min = min-delta
     max = max+delta
 
