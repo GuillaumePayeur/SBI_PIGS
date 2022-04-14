@@ -77,8 +77,8 @@ def get_mode(posterior,observations,limits,mean,std,n_bins,make_plot,index):
             range=(limits[m,0],limits[m,1]),
             density=True)
 
-#        y = savgol_filter(n,29,11)
-        theta_pred[m] = (bins[np.argmax(n)] + bins[np.argmax(n)+1])/2
+        y = savgol_filter(n,29,11)
+        theta_pred[m] = (bins[np.argmax(y)] + bins[np.argmax(y)+1])/2
 
     if make_plot:
         plot_pdf(samples,limits,n_bins,index)

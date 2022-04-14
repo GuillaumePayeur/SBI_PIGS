@@ -42,7 +42,7 @@ hidden_features = 100
 num_transforms = 5
 num_bins = 64
 max_epochs = 120
-lr_sbi = 8e-4
+lr_sbi = 1e-4
 batch_size_sbi = 128
 
 ## Models path
