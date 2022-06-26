@@ -30,7 +30,7 @@ max_noise_std = 0.04
 
 ## Training hyperparameters for the autoencoder
 batch_size_ae = 128
-epochs_ae = 500
+epochs_ae = 1 #500
 filters_ae = 64
 lr_ae = 1e-3
 latent_dim_ae = 120
@@ -41,10 +41,10 @@ model = 'nsf'
 hidden_features = 50
 num_transforms = 5
 num_bins = 64
-max_epochs = 80
+max_epochs = 1 #80
 
 ## Models path
-emulator_path = '/home/payeur/scratch/PIGS/sbi/models/emulator_v6.pth'
+emulator_path = '/home/payeur/scratch/PIGS/SBI_PIGS/models/emulator_v6.pth'
 ae_path = '/home/payeur/scratch/PIGS/SBI_PIGS/models/ae_emulated_synth_obs.pth'
 sbi_agent_path = '/home/payeur/scratch/PIGS/SBI_PIGS/models/sbi_agent_test.pkl'
 densityEstimator_path = '/home/payeur/scratch/PIGS/SBI_PIGS/models/posterior_test.pkl'
@@ -54,11 +54,11 @@ mean_path = '/home/payeur/scratch/PIGS/SBI_PIGS/data/mean.npy'
 std_path = '/home/payeur/scratch/PIGS/SBI_PIGS/data/std.npy'
 
 ## Actions to take
-create_emulated_dataset = False
-augment_synth_spectra = False
+create_emulated_dataset = True
+augment_synth_spectra = True
 train_emulator = False # Not a feature atm
-train_autoencoder = False
-train_densityEstimator = False
+train_autoencoder = True
+train_densityEstimator = True
 umap_synthgap = True
 ################################################################################
 from scripts.train_DNN import *
